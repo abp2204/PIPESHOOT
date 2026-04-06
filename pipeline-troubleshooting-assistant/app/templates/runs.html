@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h2>Recent Runs</h2>
+  <ul>
+    {% for r in runs %}
+      <li><a href="/runs/{{ r.id }}">Run {{ r.id }} — {{ r.timestamp }}</a></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

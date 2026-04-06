@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <p>A small demo tool that analyzes pipeline logs and configs to surface likely failure points.</p>
+  <form id="analyze" action="/analyze" method="post" enctype="multipart/form-data">
+    <label>Paste pipeline logs</label>
+    <textarea name="logs" rows="12" placeholder="Paste logs here..." required></textarea>
+
+    <label>Upload config (JSON or YAML)</label>
+    <input type="file" name="config_file" accept=".json,.yml,.yaml" />
+
+    <label>Optional failed run output</label>
+    <input type="file" name="failed_output" accept=".log,.txt,.out" />
+
+    <div class="row">
+      <button type="submit">Analyze</button>
+      <select id="sample_select" style="margin-left:8px"></select>
+      <button id="load_sample" type="button">Load</button>
+      <a class="link" href="/static/sample_cases/readme.txt" target="_blank">Sample files</a>
+    </div>
+  </form>
+  <div id="result" style="display:none"></div>
+</section>
+<script>
+async function loadSamples(){
+  const r = await fetch('/api/sample-cases');
+  const data = await r.json();
+  const sel = document.getElementById('sample_select');
+  sel.innerHTML = '';
+  Object.keys(data).forEach((k,i)=>{
+    const opt = document.createElement('option'); opt.value = k; opt.text = k; sel.appendChild(opt);
+  });
+  // store samples in window for quick load
+  window._samples = data;
+}
+
+document.getElementById('load_sample').addEventListener('click', ()=>{
+  const sel = document.getElementById('sample_select');
+  const key = sel.value;
+  if(window._samples && window._samples[key]){
+    document.querySelector('textarea[name=logs]').value = window._samples[key];
+  }
+});
+
+document.getElementById('analyze').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const form = new FormData(e.target);
+  const resp = await fetch('/analyze', {method: 'POST', body: form});
+  const j = await resp.json();
+  const out = document.getElementById('result');
+  out.style.display = 'block';
+  renderResult(j.result, out);
+});
+
+function renderResult(result, container){
+  container.innerHTML = '';
+  if(!result || !result.top_issue){
+    container.innerHTML = '<div class="card">No issues detected.</div>';
+    return;
+  }
+  const t = result.top_issue;
+  const html = [];
+  html.push(`<div class="card"><h3>${t.category_name} <span class="sev ${t.severity}">${t.severity}</span></h3>`);
+  html.push(`<p><strong>Confidence:</strong> ${t.confidence}</p>`);
+  if(t.root_causes && t.root_causes.length){ html.push('<p><strong>Probable root causes:</strong><ul>'+t.root_causes.map(r=>`<li>${r}</li>`).join('')+'</ul></p>'); }
+  if(t.next_steps && t.next_steps.length){ html.push('<p><strong>Next steps:</strong><ul>'+t.next_steps.map(s=>`<li>${s}</li>`).join('')+'</ul></p>'); }
+  if(t.evidence && t.evidence.length){ html.push('<p><strong>Evidence:</strong>'); t.evidence.forEach(e=>{ html.push(`<pre class="evidence">${escapeHtml(e)}</pre>`); }); html.push('</p>'); }
+  html.push('</div>');
+  container.innerHTML = html.join('');
+}
+
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+loadSamples();
+</script>
+</script>
+{% endblock %}
