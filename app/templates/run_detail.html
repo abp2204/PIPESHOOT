@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h2>Run {{ run.id }} — {{ run.timestamp }}</h2>
+  <div class="card">
+    <h3>Input summary</h3>
+    <pre>{{ run.input_summary | tojson(indent=2) }}</pre>
+  </div>
+  <div class="card">
+    <h3>Top issue</h3>
+    {% if run.result.top_issue %}
+      <h4>{{ run.result.top_issue.category_name }} <span class="sev {{ run.result.top_issue.severity }}">{{ run.result.top_issue.severity }}</span></h4>
+      <p><strong>Confidence:</strong> {{ run.result.top_issue.confidence }}</p>
+      <p><strong>Root causes:</strong></p>
+      <ul>{% for r in run.result.top_issue.root_causes %}<li>{{ r }}</li>{% endfor %}</ul>
+      <p><strong>Next steps:</strong></p>
+      <ul>{% for s in run.result.top_issue.next_steps %}<li>{{ s }}</li>{% endfor %}</ul>
+      <p><strong>Evidence:</strong></p>
+      {% for e in run.result.top_issue.evidence %}
+        <pre class="evidence">{{ e }}</pre>
+      {% endfor %}
+    {% else %}
+      <p>No issues detected.</p>
+    {% endif %}
+  </div>
+  <div class="card">
+    <h3>Full result JSON</h3>
+    <pre>{{ run.result | tojson(indent=2) }}</pre>
+  </div>
+</section>
+{% endblock %}

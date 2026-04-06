@@ -1,0 +1,6 @@
+2026-04-06 12:00:00 INFO Starting job
+2026-04-06 12:00:01 ERROR FileNotFoundError: [Errno 2] No such file or directory: '/data/input/events.csv'
+Traceback (most recent call last):
+  File "runner.py", line 42, in <module>
+    main()
+FileNotFoundError: [Errno 2] No such file or directory: '/data/input/events.csv'

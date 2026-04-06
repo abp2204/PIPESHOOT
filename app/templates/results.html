@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<section>
+  <h2>Analysis Results</h2>
+  {% if result.top_issue %}
+    <div class="card">
+      <h3>{{ result.top_issue.category_name }} <span class="sev {{ result.top_issue.severity }}">{{ result.top_issue.severity }}</span></h3>
+      <p><strong>Confidence:</strong> {{ result.top_issue.confidence }}</p>
+      <p><strong>Probable root causes:</strong></p>
+      <ul>
+        {% for r in result.top_issue.root_causes %}
+          <li>{{ r }}</li>
+        {% endfor %}
+      </ul>
+      <p><strong>Next steps:</strong></p>
+      <ul>
+        {% for s in result.top_issue.next_steps %}
+          <li>{{ s }}</li>
+        {% endfor %}
+      </ul>
+      <p><strong>Evidence snippets:</strong></p>
+      <pre class="evidence">{{ result.top_issue.evidence|join('\n') }}</pre>
+    </div>
+  {% else %}
+    <div class="card">No issues detected.</div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,4 @@
+{
+  "input": {"path": "./data/input/events.csv"},
+  "runtime": {"mode": "batch"}
+}
