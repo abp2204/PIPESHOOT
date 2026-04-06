@@ -1,3 +1,0 @@
-2026-04-06 12:13:01 ERROR ModuleNotFoundError: No module named 'pandas'
-During handling of the above exception, another exception occurred:
-ModuleNotFoundError: No module named 'pandas'
